@@ -72,9 +72,90 @@ void HAL_MspInit(void)
 
   /* System interrupt init*/
 
+  /** Disable the internal Pull-Up in Dead Battery pins of UCPD peripheral
+  */
+  HAL_SYSCFG_StrobeDBattpinsConfig(SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
+
   /* USER CODE BEGIN MspInit 1 */
 
   /* USER CODE END MspInit 1 */
+}
+
+/**
+* @brief FDCAN MSP Initialization
+* This function configures the hardware resources used in this example
+* @param hfdcan: FDCAN handle pointer
+* @retval None
+*/
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+  if(hfdcan->Instance==FDCAN1)
+  {
+  /* USER CODE BEGIN FDCAN1_MspInit 0 */
+
+  /* USER CODE END FDCAN1_MspInit 0 */
+
+  /** Initializes the peripherals clocks
+  */
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
+    PeriphClkInit.FdcanClockSelection = RCC_FDCANCLKSOURCE_PCLK1;
+
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    /* Peripheral clock enable */
+    __HAL_RCC_FDCAN_CLK_ENABLE();
+
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    /**FDCAN1 GPIO Configuration
+    PC4     ------> FDCAN1_RX
+    PC5     ------> FDCAN1_TX
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF3_FDCAN1;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN FDCAN1_MspInit 1 */
+
+  /* USER CODE END FDCAN1_MspInit 1 */
+  }
+
+}
+
+/**
+* @brief FDCAN MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param hfdcan: FDCAN handle pointer
+* @retval None
+*/
+void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* hfdcan)
+{
+  if(hfdcan->Instance==FDCAN1)
+  {
+  /* USER CODE BEGIN FDCAN1_MspDeInit 0 */
+
+  /* USER CODE END FDCAN1_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_FDCAN_CLK_DISABLE();
+
+    /**FDCAN1 GPIO Configuration
+    PC4     ------> FDCAN1_RX
+    PC5     ------> FDCAN1_TX
+    */
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_4|GPIO_PIN_5);
+
+  /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
+
+  /* USER CODE END FDCAN1_MspDeInit 1 */
+  }
+
 }
 
 /* USER CODE BEGIN 1 */
